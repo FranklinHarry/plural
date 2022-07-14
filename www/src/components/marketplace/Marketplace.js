@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Div, Flex } from 'honorable'
 import { Tab } from 'pluralsh-design-system'
 
@@ -16,42 +16,35 @@ import MarketplaceRepositories from './MarketplaceRepositories'
 const sidebarWidth = 256 - 32
 
 function Marketplace({ installed }) {
+  const navigate = useNavigate()
   const [areFiltersOpen] = useState(true)
   const nextTabKey = installed ? 'installed' : 'marketplace'
+  const tabKeyToUrl = {
+    installed: '/installed',
+    marketplace: '/marketplace',
+  }
   const tabProps = {
     selectedKey: nextTabKey,
     keyboardActivation: 'manual',
     orientation: 'horizontal',
     onSelectionChange: key => {
       console.log('key changed to', key)
+      const gotoUrl = tabKeyToUrl[key]
+      if (gotoUrl) navigate(gotoUrl)
     },
     children: [
       <TabListItem
         key="marketplace"
-        renderer={(props, ref, state) => (
-          <Link
-            to="/marketplace"
-            style={{ color: 'inherit', textDecoration: 'none' }}
-            ref={ref}
-            {...props}
-          >
-            <Tab active={state.selectedKey === 'marketplace'}>Marketplace</Tab>
-          </Link>
-        )}
-      />,
+        url={tabKeyToUrl.marketplace}
+      >
+        Marketplace
+      </TabListItem>,
       <TabListItem
         key="installed"
-        renderer={(props, ref, state) => (
-          <Link
-            ref={ref}
-            to="/installed"
-            style={{ color: 'inherit', textDecoration: 'none' }}
-            {...props}
-          >
-            <Tab active={state.selectedKey === 'installed'}>Installed</Tab>
-          </Link>
-        )}
-      />,
+        url={tabKeyToUrl.installed}
+      >
+        Installed
+      </TabListItem>,
     ],
   }
   const tabState = useTabListState({ ...tabProps })

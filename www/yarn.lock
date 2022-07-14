@@ -13527,9 +13527,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pluralsh-design-system@npm:1.116.0":
-  version: 1.116.0
-  resolution: "pluralsh-design-system@npm:1.116.0"
+"pluralsh-design-system@npm:1.118.0":
+  version: 1.118.0
+  resolution: "pluralsh-design-system@npm:1.118.0"
   dependencies:
     prop-types: ^15.8.1
   peerDependencies:
@@ -13540,7 +13540,7 @@ __metadata:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
     react-transition-group: ">=4.4.2"
-  checksum: d08c055c98d3980f4bdaaf217ed28dbe44779264baeb89c8f73f063b678f6195c202b838ce72dc6c73e31c4cdab0e5fb5d65f722972a6fa9b154f3110aef051c
+  checksum: 33d6261ef08459ce32dd1659aad36d84944a5b495b27eacc45a86f0fd3c1870565a3eba1c370445cff9f6cc0a247dd28b7858849c7bf9b2dbab2729e80bcfadd
   languageName: node
   linkType: hard
 
@@ -15070,6 +15070,13 @@ __metadata:
   version: 3.0.4
   resolution: "react-lifecycles-compat@npm:3.0.4"
   checksum: a904b0fc0a8eeb15a148c9feb7bc17cec7ef96e71188280061fc340043fd6d8ee3ff233381f0e8f95c1cf926210b2c4a31f38182c8f35ac55057e453d6df204f
+  languageName: node
+  linkType: hard
+
+"react-merge-refs@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "react-merge-refs@npm:2.0.1"
+  checksum: c0b6fdb384a92e9b2bb7d56128244a2db97b9343c0dcae70f172352c3732312266c078495902707e45f523625afcba78996a22edea3a8e7b2b17fe97347059fe
   languageName: node
   linkType: hard
 
@@ -18954,7 +18961,7 @@ __metadata:
     moment: 2.29.4
     phoenix: 1.6.11
     pluralsh-absinthe-socket-apollo-link: 0.2.0
-    pluralsh-design-system: 1.116.0
+    pluralsh-design-system: 1.118.0
     postcss-import: 8.2.0
     prop-types: 15.8.1
     query-string: 7.1.1
@@ -18973,6 +18980,7 @@ __metadata:
     react-highlight.js: 1.0.7
     react-icons: 4.4.0
     react-json-view: 1.21.3
+    react-merge-refs: ^2.0.1
     react-portal: 4.2.2
     react-router-dom: 6.3.0
     react-sage: 0.3.16

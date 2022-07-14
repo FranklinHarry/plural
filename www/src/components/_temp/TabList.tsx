@@ -42,7 +42,6 @@ export const TabList = ({
     },
     ...tabProps,
   };
-  console.log("tablist children", (props as any).children);
   const ref = useRef<HTMLDivElement>(null);
   const { tabListProps } = useTabList(tabProps, tabState, ref);
   const tabChildren = [...tabState.collection].map((item) => {
@@ -84,11 +83,10 @@ const TabRenderer = ({
   if (item.props.renderer) {
     return item.props.renderer(tabProps, ref, tabState);
   }
-  console.log("tab", item.key, ref);
   return (
-    <Div {...tabProps} ref={ref}>
-      <Tab>{item.rendered}</Tab>
-    </Div>
+    <Tab ref={ref} {...tabProps} active={tabState.selectedKey === item.key}>
+      {item.rendered}
+    </Tab>
   );
 };
 
@@ -137,15 +135,8 @@ export const TabListTest = () => {
 
   return (
     <Div>
-      <TabList
-        tabState={tabState}
-        tabProps={tabListProps}
-        backgroundColor="blue"
-      ></TabList>
+      <TabList tabState={tabState} tabProps={tabListProps}></TabList>
       <H1 heading>Tab Content</H1>
-      {/* <TabPanel tabState={tabState} tabProps={tabListProps}>
-        {`Panel Content ${tabState.selectedKey}`}
-      </TabPanel> */}
       <TabPanel
         tabState={tabState}
         tabProps={tabListProps}
