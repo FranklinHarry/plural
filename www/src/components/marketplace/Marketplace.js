@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Button, Div, Flex } from 'honorable'
-import { FiltersIcon, Tab } from 'pluralsh-design-system'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Div, Flex } from 'honorable'
+import { Tab } from 'pluralsh-design-system'
 
 import {
   TabList,
@@ -16,7 +16,7 @@ import MarketplaceRepositories from './MarketplaceRepositories'
 const sidebarWidth = 256 - 32
 
 function Marketplace({ installed }) {
-  const [areFiltersOpen, setAreFiltersOpen] = useState(true)
+  const [areFiltersOpen] = useState(true)
   const nextTabKey = installed ? 'installed' : 'marketplace'
   const tabProps = {
     selectedKey: nextTabKey,
