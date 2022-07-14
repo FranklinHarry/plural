@@ -1,94 +1,162 @@
-import { Div, DivProps } from "honorable";
+import { Div, DivProps, Flex, FlexProps, H1, Li } from "honorable";
 import { Item } from "@react-stately/collections";
 import { useTab, useTabList, useTabPanel } from "@react-aria/tabs";
 import { useTabListState } from "@react-stately/tabs";
 import { TabListState } from "@react-stately/tabs";
 import { Tab } from "pluralsh-design-system";
-import {
-  ItemRenderer,
-  ItemProps,
-  SectionProps,
-  Collection,
-  CollectionBase,
-  Node,
-} from "@react-types/shared";
+import { ItemProps, Node } from "@react-types/shared";
 
-import {
-  AriaTabProps,
-  AriaTabPanelProps,
-  AriaTabListProps,
-} from "@react-types/tabs";
-
-import { forwardRef, HTMLAttributes, RefObject, useRef } from "react";
+import { HTMLAttributes, RefObject, useRef } from "react";
 
 type Renderer = (
   props: HTMLAttributes<HTMLElement>,
-  ref: RefObject<any>
+  ref: RefObject<any>,
+  state: TabListState<any>
 ) => JSX.Element;
 
-const TabListItem = (props: ItemProps<void> & { renderer?: Renderer }) => (
-  <Item {...props} />
-);
-export { TabListItem };
+type MakeOptional<Type, Key extends keyof Type> = Omit<Type, Key> &
+  Partial<Pick<Type, Key>>;
 
-const x = (
-  <TabListItem
-    key="blarg"
-    renderer={(props, ref) => (
-      <Div {...props} ref={ref}>
-        stiff
-      </Div>
-    )}
-  >
-    child
-  </TabListItem>
-);
+type TabListItemProps = MakeOptional<ItemProps<void>, "children"> & {
+  renderer?: Renderer;
+};
 
-export type TabListProps = { renderer: Renderer } & AriaTabListProps<
-  typeof TabListItem
->;
+const TabListItem = Item as (props: TabListItemProps) => JSX.Element;
 
-export const TabList = ({ renderer, ...props }: TabListProps) => {
-  props = {
+type TabListProps = {
+  tabState: TabListState<object>;
+  tabProps: any;
+  renderer?: Renderer;
+};
+
+export const TabList = ({
+  tabState,
+  tabProps,
+  renderer,
+  ...props
+}: TabListProps & FlexProps) => {
+  tabProps = {
     ...{
       keyboardActivation: "manual",
       orientation: "horizontal",
     },
-    ...props,
+    ...tabProps,
   };
+  console.log("tablist children", (props as any).children);
   const ref = useRef<HTMLDivElement>(null);
-  const state = useTabListState(props);
-  const { tabListProps } = useTabList(props, state, ref);
-  const tabChildren = [...state.collection].map((item) => {
-    return <TabRenderer key={item.key} item={item} state={state} />;
+  const { tabListProps } = useTabList(tabProps, tabState, ref);
+  const tabChildren = [...tabState.collection].map((item) => {
+    return (
+      <TabRenderer key={item.key} item={item as any} tabState={tabState} />
+    );
   });
   if (renderer) {
-    return renderer({ ...tabListProps, ...{ children: tabChildren } }, ref);
+    return renderer(
+      { ...tabListProps, ...{ children: tabChildren } },
+      ref,
+      tabState
+    );
   }
   return (
-    <Div {...tabListProps} ref={ref}>
+    <Flex
+      {...tabListProps}
+      {...props}
+      flexDirection={tabProps.orientation === "vertical" ? "column" : "row"}
+      alignItems={
+        tabProps.orientation === "vertical" ? "flex-start" : "flex-end"
+      }
+      ref={ref}
+    >
       {tabChildren}
-    </Div>
+    </Flex>
   );
 };
 
 const TabRenderer = ({
   item,
-  state,
+  tabState,
 }: {
   item: Node<typeof TabListItem>;
-  state: TabListState<any>;
+  tabState: TabListState<any>;
 }) => {
   let ref = useRef<HTMLDivElement>(null);
-  let { tabProps } = useTab({ key: item.key }, state, ref);
+  let { tabProps } = useTab({ key: item.key }, tabState, ref);
   if (item.props.renderer) {
-    return item.props.renderer(tabProps, ref);
+    return item.props.renderer(tabProps, ref, tabState);
   }
+  console.log("tab", item.key, ref);
   return (
-    <Tab {...tabProps} ref={ref}>
-      {item.rendered}
-    </Tab>
+    <Div {...tabProps} ref={ref}>
+      <Tab>{item.rendered}</Tab>
+    </Div>
   );
 };
 
-export { useTabListState, Item };
+export type TabPanelProps = {
+  tabState: TabListState<object>;
+  tabProps: any;
+  renderer?: Renderer;
+};
+export const TabPanel = ({
+  tabState,
+  tabProps,
+  renderer,
+  ...props
+}: TabPanelProps & DivProps) => {
+  let ref = useRef<any>();
+  let { tabPanelProps } = useTabPanel(tabProps, tabState, ref);
+  if (renderer) {
+    return renderer({ ...tabPanelProps, ...props }, ref, tabState);
+  }
+  return <Div {...tabPanelProps} {...props} ref={ref}></Div>;
+};
+
+export const TabListTest = () => {
+  const tabListProps = {
+    keyboardActivation: "manual",
+    orientation: "horizontal",
+    children: [
+      <TabListItem key="1">Stuff 1</TabListItem>,
+      <TabListItem key="2">
+        <Div>Stuff 2</Div>
+      </TabListItem>,
+      <TabListItem
+        key="3"
+        renderer={(props, ref) => {
+          return (
+            <Li {...props} ref={ref}>
+              List item content
+            </Li>
+          );
+        }}
+      />,
+    ],
+  };
+
+  const tabState = useTabListState(tabListProps);
+
+  return (
+    <Div>
+      <TabList
+        tabState={tabState}
+        tabProps={tabListProps}
+        backgroundColor="blue"
+      ></TabList>
+      <H1 heading>Tab Content</H1>
+      {/* <TabPanel tabState={tabState} tabProps={tabListProps}>
+        {`Panel Content ${tabState.selectedKey}`}
+      </TabPanel> */}
+      <TabPanel
+        tabState={tabState}
+        tabProps={tabListProps}
+        renderer={(props, ref) => {
+          return <Div>Render Prop Content</Div>;
+        }}
+      >
+        {`Panel Content ${tabState.selectedKey}`}
+      </TabPanel>
+    </Div>
+  );
+};
+
+export { useTabListState, TabListItem };

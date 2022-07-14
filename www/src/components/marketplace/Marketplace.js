@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button, Div, Flex } from 'honorable'
 import { FiltersIcon, Tab } from 'pluralsh-design-system'
-import { useTabListState } from '@react-stately/tabs'
 
-import { Item, TabList } from '../_temp/TabList.tsx'
+import {
+  TabList,
+  TabListItem,
+  TabPanel,
+  useTabListState,
+} from '../_temp/TabList.tsx'
 
 import MarketplaceSidebar from './MarketplaceSidebar'
 import MarketplaceRepositories from './MarketplaceRepositories'
@@ -13,7 +17,44 @@ const sidebarWidth = 256 - 32
 
 function Marketplace({ installed }) {
   const [areFiltersOpen, setAreFiltersOpen] = useState(true)
-  const nextTabKey = installed ? 'marketplace' : 'installed'
+  const nextTabKey = installed ? 'installed' : 'marketplace'
+  const tabProps = {
+    selectedKey: nextTabKey,
+    keyboardActivation: 'manual',
+    orientation: 'horizontal',
+    onSelectionChange: key => {
+      console.log('key changed to', key)
+    },
+    children: [
+      <TabListItem
+        key="marketplace"
+        renderer={(props, ref, state) => (
+          <Link
+            to="/marketplace"
+            style={{ color: 'inherit', textDecoration: 'none' }}
+            ref={ref}
+            {...props}
+          >
+            <Tab active={state.selectedKey === 'marketplace'}>Marketplace</Tab>
+          </Link>
+        )}
+      />,
+      <TabListItem
+        key="installed"
+        renderer={(props, ref, state) => (
+          <Link
+            ref={ref}
+            to="/installed"
+            style={{ color: 'inherit', textDecoration: 'none' }}
+            {...props}
+          >
+            <Tab active={state.selectedKey === 'installed'}>Installed</Tab>
+          </Link>
+        )}
+      />,
+    ],
+  }
+  const tabState = useTabListState({ ...tabProps })
 
   return (
     <Flex
@@ -23,54 +64,24 @@ function Marketplace({ installed }) {
       maxWidth="100%"
     >
       <TabList
-        selectedKey={nextTabKey}
-        onSelectionChange={key => {
-          console.log('stuff', key)
-        }}
+        tabState={tabState}
+        tabProps={tabProps}
+        marginHorizontal="large"
+        flexShrink={0}
+        height={57}
+      />
+      <TabPanel
+        tabState={tabState}
+        tabProps={tabProps}
         renderer={(props, ref) => (
           <Flex
-            className="the thing"
-            {...props}
             ref={ref}
-            marginHorizontal="large"
-            flexShrink={0}
-            direction="row"
-            height={57}
-            alignItems="flex-end"
+            {...props}
+            marginTop="medium"
+            flexGrow={1}
+            overflow="hidden"
           />
         )}
-      >
-        <Item
-          key="marketplace"
-          renderer={(props, ref) => (
-            <Link
-              ref={ref}
-              to="/marketplace"
-              style={{ color: 'inherit', textDecoration: 'none' }}
-              {...props}
-            >
-              <Tab active={!installed}>Marketplace</Tab>
-            </Link>
-          )}
-        />
-        <Item
-          key="installed"
-          renderer={(props, ref) => (
-            <Link
-              ref={ref}
-              to="/installed"
-              style={{ color: 'inherit', textDecoration: 'none' }}
-              {...props}
-            >
-              <Tab active={installed}>Installed</Tab>
-            </Link>
-          )}
-        />
-      </TabList>
-      <Flex
-        marginTop="medium"
-        flexGrow={1}
-        overflow="hidden"
       >
         <MarketplaceRepositories
           installed={installed}
@@ -95,7 +106,7 @@ function Marketplace({ installed }) {
         >
           <MarketplaceSidebar width="100%" />
         </Div>
-      </Flex>
+      </TabPanel>
     </Flex>
   )
 }
