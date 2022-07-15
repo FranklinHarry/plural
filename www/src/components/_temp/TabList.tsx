@@ -6,7 +6,13 @@ import { TabListState } from "@react-stately/tabs";
 import { Tab } from "pluralsh-design-system";
 import { ItemProps, Node } from "@react-types/shared";
 
-import { HTMLAttributes, RefObject, useRef } from "react";
+import {
+  ComponentProps,
+  ComponentPropsWithRef,
+  HTMLAttributes,
+  RefObject,
+  useRef,
+} from "react";
 
 type Renderer = (
   props: HTMLAttributes<HTMLElement>,
@@ -17,9 +23,10 @@ type Renderer = (
 type MakeOptional<Type, Key extends keyof Type> = Omit<Type, Key> &
   Partial<Pick<Type, Key>>;
 
-type TabListItemProps = MakeOptional<ItemProps<void>, "children"> & {
-  renderer?: Renderer;
-};
+type TabListItemProps = ComponentPropsWithRef<typeof Tab> &
+  MakeOptional<ItemProps<void>, "children"> & {
+    renderer?: Renderer;
+  };
 
 const TabListItem = Item as (props: TabListItemProps) => JSX.Element;
 
@@ -46,7 +53,12 @@ export const TabList = ({
   const { tabListProps } = useTabList(tabProps, tabState, ref);
   const tabChildren = [...tabState.collection].map((item) => {
     return (
-      <TabRenderer key={item.key} item={item as any} tabState={tabState} />
+      <TabRenderer
+        key={item.key}
+        item={item as any}
+        tabState={tabState}
+        tabProps={tabProps}
+      />
     );
   });
   if (renderer) {
@@ -74,17 +86,36 @@ export const TabList = ({
 const TabRenderer = ({
   item,
   tabState,
+  tabProps,
 }: {
   item: Node<typeof TabListItem>;
   tabState: TabListState<any>;
+  tabProps: any;
 }) => {
   let ref = useRef<HTMLDivElement>(null);
-  let { tabProps } = useTab({ key: item.key }, tabState, ref);
+  let { tabProps: props } = useTab({ key: item.key }, tabState, ref);
+
   if (item.props.renderer) {
-    return item.props.renderer(tabProps, ref, tabState);
+    if (item.rendered) {
+      props.children = (
+        <Tab
+          active={tabState.selectedKey === item.key}
+          vertical={tabProps.orientation === "vertical"}
+          {...item.props}
+        >
+          {item.rendered}
+        </Tab>
+      );
+    }
+    return item.props.renderer(props, ref, tabState);
   }
   return (
-    <Tab ref={ref} {...tabProps} active={tabState.selectedKey === item.key}>
+    <Tab
+      ref={ref}
+      {...props}
+      active={tabState.selectedKey === item.key}
+      {...item.props}
+    >
       {item.rendered}
     </Tab>
   );
@@ -127,6 +158,27 @@ export const TabListTest = () => {
             </Li>
           );
         }}
+      />,
+      <TabListItem
+        key="test3"
+        renderer={(props, ref) => (
+          <a
+            ref={ref}
+            {...props}
+            href="/marketplace"
+            style={{ textDecoration: "none", color: "white" }}
+          />
+        )}
+      >
+        Wrapped regular tab
+      </TabListItem>,
+      <TabListItem
+        key="test4"
+        renderer={(props, ref) => (
+          <div ref={ref} {...props}>
+            Completely custom tab
+          </div>
+        )}
       />,
     ],
   };

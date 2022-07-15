@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Div, Flex } from 'honorable'
-import { Tab } from 'pluralsh-design-system'
 
 import {
   TabList,
@@ -35,13 +34,25 @@ function Marketplace({ installed }) {
     children: [
       <TabListItem
         key="marketplace"
-        url={tabKeyToUrl.marketplace}
+        renderer={(props, ref) => (
+          <Link
+            to={tabKeyToUrl.marketplace}
+            ref={ref}
+            {...props}
+          />
+        )}
       >
         Marketplace
       </TabListItem>,
       <TabListItem
         key="installed"
-        url={tabKeyToUrl.installed}
+        renderer={(props, ref) => (
+          <Link
+            to={tabKeyToUrl.installed}
+            ref={ref}
+            {...props}
+          />
+        )}
       >
         Installed
       </TabListItem>,
